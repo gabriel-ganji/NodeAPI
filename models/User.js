@@ -3,13 +3,43 @@ const bcrypt = require("bcrypt");
 
 class User {
 
-    async new(email, name, password){
+    async findAll() {
+
+        try {
+            let result = await knex.select(["id", "email", "role", "name"]).table("users");
+            return result;
+        } catch (error) {
+            console.log(error);
+            return []
+        }
+
+    }
+
+    async findById(id) {
+        try {
+
+            let result = await knex.select(["id", "email", "role", "name"]).where({ id: id }).table("users");
+
+            if (result.length > 0) {
+                return result[0];
+            } else {
+                return undefined;
+            }
+
+        } catch (error) {
+            console.log(error);
+            return undefined;
+        }
+
+    }
+
+    async new(email, name, password) {
         try {
 
             let hash = await bcrypt.hash(password, 12);
             await knex.insert({ email, name, password: hash, role: 0 }).table("users");
 
-        } catch(error) {
+        } catch (error) {
             console.log(error);
         }
     }
@@ -17,17 +47,17 @@ class User {
     async findEmail(email) {
 
         try {
-            let result = await knex.select("*").from("users").where({email: email});
-            if(result.length > 0) {
+            let result = await knex.select("*").from("users").where({ email: email });
+            if (result.length > 0) {
                 return true;
             } else {
                 return false;
             }
-        } catch(error) {
+        } catch (error) {
             console.log(error);
             return false;
         }
-        
+
     }
 
 }

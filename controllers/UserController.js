@@ -1,26 +1,39 @@
 let User = require("../models/User");
 
 class UserController {
-    
-    async index(req, res){
 
+    async index(req, res) {
+        let users = await User.findAll();
+        res.json(users);
     }
 
-    async create(req, res){
-        
+    async findUser(req, res) {
+        let id = req.params.id;
+        let user = await User.findById(id);
+        if (user === undefined) {
+            res.status(404);
+            res.json({});
+        } else {
+            res.status(200);
+            res.json(user);
+        }
+    }
+
+    async create(req, res) {
+
         let { email, password, name } = req.body;
 
-        if( email === undefined ) {
+        if (email === undefined) {
             res.status(400);
             res.json({ error: "O e-mail é inválido!" })
         }
 
-        if( name === undefined ) {
+        if (name === undefined) {
             res.status(400);
             res.json({ error: "O nome é inválido!" })
         }
 
-        if( password === undefined ) {
+        if (password === undefined) {
             res.status(400);
             res.json({ error: "A senha é inválida!" })
         }
@@ -29,9 +42,9 @@ class UserController {
 
         let emailExists = await User.findEmail(email);
 
-        if(emailExists) {
+        if (emailExists) {
             res.status(406);
-            res.json({error: "O e-mail já está cadastrado!"});
+            res.json({ error: "O e-mail já está cadastrado!" });
             return;
         }
 
