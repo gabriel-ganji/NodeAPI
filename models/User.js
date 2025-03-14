@@ -75,7 +75,7 @@ class User {
                     if (!result) {
                         editUser.email = email;
                     } else {
-                        return { status: false, error: "O e-mail já está cadastrado!" }
+                        return { status: false, error: "O e-mail já está cadastrado!" };
                     }
                 }
             }
@@ -90,14 +90,33 @@ class User {
 
             try {
                 await knex.update(editUser).where({ id: id }).table("users");
-                return { status: true }
+                return { status: true };
             } catch (error) {
-                return { status: false, error: error }
+                return { status: false, error: error };
             }
 
 
         } else {
-            return { status: false, error: "O usuário não existe!" }
+            return { status: false, error: "O usuário não existe!" };
+        }
+
+    }
+
+    async delete(id) {
+        
+        let user = await this.findById(id);
+        
+        if(user != undefined) {
+
+            try{
+                await knex.delete().where({id: id}).table("users");
+                return {status: true};
+            } catch(error) {
+                return { status: false, error: error};
+            }
+           
+        } else {
+            return { status: false, error: "O usuário não existe!"};
         }
 
     }
