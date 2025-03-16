@@ -1,4 +1,5 @@
 let User = require("../models/User");
+let PasswordToken = require("../models/PasswordToken");
 
 class UserController {
 
@@ -82,6 +83,22 @@ class UserController {
         if(result.status) {
             res.status(200);
             res.send("Usuário deletado com sucesso!");
+        } else {
+            res.status(406);
+            res.send(result.error);
+        }
+
+    }
+
+    async recoverPassword(req, res) {
+       
+        let email = req.body.email;
+        let result = await PasswordToken.create(email);
+       
+        if(result.status) {
+            console.log(result.token);
+            res.status(200);
+            res.send(String(result.token));
         } else {
             res.status(406);
             res.send(result.error);
