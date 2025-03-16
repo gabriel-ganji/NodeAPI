@@ -1,5 +1,9 @@
 let User = require("../models/User");
 let PasswordToken = require("../models/PasswordToken");
+const bcrypt = require("bcrypt");
+
+let jwt = require("jsonwebtoken");
+let secret = "gabrieru03282002";
 
 class UserController {
 
@@ -75,12 +79,12 @@ class UserController {
     }
 
     async remove(req, res) {
-        
+
         let id = req.params.id;
 
         let result = await User.delete(id);
 
-        if(result.status) {
+        if (result.status) {
             res.status(200);
             res.send("Usuário deletado com sucesso!");
         } else {
@@ -91,11 +95,11 @@ class UserController {
     }
 
     async recoverPassword(req, res) {
-       
+
         let email = req.body.email;
         let result = await PasswordToken.create(email);
-       
-        if(result.status) {
+
+        if (result.status) {
             console.log(result.token);
             res.status(200);
             res.send(String(result.token));
@@ -113,7 +117,7 @@ class UserController {
 
         let isTokenValid = await PasswordToken.validate(token);
 
-        if(isTokenValid.status) {
+        if (isTokenValid.status) {
             await User.changePassword(password, isTokenValid.token.user_id, isTokenValid.token.token);
             res.status(200);
             res.send("Senha alterada!");
@@ -121,7 +125,37 @@ class UserController {
             res.status(406);
             res.send("Token inválido!");
         }
-        
+
+    }
+
+    async login(req, res) {
+
+        let { email, password } = req.body;
+        let user = await User.findByEmail(email);
+
+        if (user != undefined) {
+
+            let result = await bcrypt.compare(password, user.password);
+
+            if (result) {
+
+                let token = jwt.sign({ email: user.email, role: user.role }, secret);
+                res.status(200);
+                res.json({ token: token });
+
+            } else {
+
+                res.status(406);
+                res.send("Senha incorreta!");
+
+            }
+
+        } else {
+
+            res.json({ status: false });
+
+        }
+
     }
 
 }
